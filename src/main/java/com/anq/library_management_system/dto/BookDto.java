@@ -1,5 +1,6 @@
 package com.anq.library_management_system.dto;
 
+import com.anq.library_management_system.validation.CurrentOrPastYear;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -16,14 +17,18 @@ public class BookDto {
     @NotBlank
     private String title;
 
-    @NotEmpty
-    private List<String> authors;
+    @NotBlank
+    private String description;
 
     @NotEmpty
-    private List<String> genres;
+    private List<Long> authors;
+
+    @NotEmpty
+    private List<Long> genres;
 
     @NotNull
     @Positive
+    @CurrentOrPastYear //я тебя очень люблю<3
     private Integer publicationYear;
 
     @NotNull

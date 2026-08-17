@@ -1,74 +1,174 @@
 package com.anq.library_management_system.service;
 
 import com.anq.library_management_system.dto.BookDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.anq.library_management_system.entity.Author;
+import com.anq.library_management_system.entity.Book;
+import com.anq.library_management_system.entity.Genre;
+import com.anq.library_management_system.exception.AuthorNotFoundException;
+import com.anq.library_management_system.exception.BookNotFoundException;
+import com.anq.library_management_system.exception.GenreNotFoundException;
+import com.anq.library_management_system.repository.AuthorRepository;
+import com.anq.library_management_system.repository.BookRepository;
+import com.anq.library_management_system.repository.GenreRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class BookService {
-    private final List<BookDto> books = new ArrayList<>();
+    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+    private final GenreRepository genreRepository;
 
-    public BookService() {
-        books.add(new BookDto(1L, "Java", List.of("Marc Loy"), List.of("Programming"), 2023, 3));
-        books.add(new BookDto(2L, "C#", List.of("Loy Marc"), List.of("Programming"), 2023, 3)); // Изменили ID на 2L
+    public BookService(BookRepository bookRepository,AuthorRepository authorRepository,
+                       GenreRepository genreRepository) {
+        this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
+        this.genreRepository = genreRepository;
     }
 
+    private BookDto toDto(Book book) {
 
+        BookDto dto = new BookDto();
+
+        dto.setId(book.getId());
+        dto.setTitle(book.getTitle());
+        dto.setDescription(book.getDescription());
+        dto.setPublicationYear(book.getPublicationYear());
+        dto.setAvailableCopies(book.getAvailableCopies());
+
+        List<Long> authorIds = new ArrayList<>();
+
+        for (Author author : book.getAuthors()) {
+            authorIds.add(author.getId());
+        }
+
+        dto.setAuthors(authorIds);
+
+        List<Long> genreIds = new ArrayList<>();
+
+        for (Genre genre : book.getGenres()) {
+            genreIds.add(genre.getId());
+        }
+
+        dto.setGenres(genreIds);
+
+        return dto;
+    }
+
+    private Book fromDto(BookDto bookDto) {
+
+        Book book = new Book();
+
+        book.setTitle(bookDto.getTitle());
+        book.setDescription(bookDto.getDescription());
+        book.setPublicationYear(bookDto.getPublicationYear());
+        book.setAvailableCopies(bookDto.getAvailableCopies());
+
+        List<Author> authors = getAuthorsByIds(bookDto.getAuthors());
+        List<Genre> genres = getGenresByIds(bookDto.getGenres());
+
+        book.setAuthors(authors);
+        book.setGenres(genres);
+
+        return book;
+    }
+    private List<Author> getAuthorsByIds(List<Long> authorIds) {
+
+        List<Author> authors = authorRepository.findAllById(authorIds);
+
+        if (authors.size() != authorIds.size()) {
+            throw new AuthorNotFoundException(
+                    "One or more authors not found"
+            );
+        }
+
+        return authors;
+    }
+    private List<Genre> getGenresByIds(List<Long> genreIds) {
+
+        List<Genre> genres = genreRepository.findAllById(genreIds);
+
+        if (genres.size() != genreIds.size()) {
+            throw new GenreNotFoundException(
+                    "One or more genres not found"
+            );
+        }
+
+        return genres;
+    }
     public List<BookDto> getAllBooks() {
-        return books;
+
+        List<Book> books = bookRepository.findAll();
+        List<BookDto> bookDtos = new ArrayList<>();
+
+        for (Book book : books) {
+
+            BookDto bookDto = toDto(book);
+
+            bookDtos.add(bookDto);
+        }
+
+        return bookDtos;
     }
 
     public BookDto getbookById(Long id) {
 
-        for (BookDto book : books) {
-            if (Objects.equals(id, book.getId())) {
-                return book;
-            }
-        }
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(
+                        "Book with id " + id + " not found"
+                ));
 
-        return null;
-    }
 
-    public BookDto createBook(BookDto bookDto){
-        Long maxId = 0L;
+        BookDto bookDto = toDto(book);
 
-        for (BookDto book : books) {
-            if (book.getId() > maxId) {
-                maxId = book.getId();
-            }
-        }
-        bookDto.setId(maxId + 1);
-        books.add(bookDto);
         return bookDto;
-
     }
 
-    public BookDto updateBook(Long id, BookDto bookDto){
-        for (BookDto book : books) {
-            if (Objects.equals(id, book.getId())) {
-                book.setTitle(bookDto.getTitle());
-                book.setAuthors(bookDto.getAuthors());
-                book.setGenres(bookDto.getGenres());
-                book.setAvailableCopies(bookDto.getAvailableCopies());
-                book.setPublicationYear(bookDto.getPublicationYear());
-                return book;
-            }
-        }
-        return null;
+    public BookDto createBook(BookDto bookDto) {
+
+        Book book = fromDto(bookDto);
+
+        Book savedBook = bookRepository.save(book);
+
+        BookDto savedBookDto = toDto(savedBook);
+
+        return savedBookDto;
     }
 
-    public boolean deleteBook(Long id){
-        for (int i = 0; i < books.size(); i++) {
-            if (Objects.equals(id, books.get(i).getId())) {
-                books.remove(i);
-                return true;
-            }
-        }
-        return false;
+    public BookDto updateBook(Long id, BookDto bookDto) {
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(
+                        "Book with id " + id + " not found"
+                ));
+
+        book.setTitle(bookDto.getTitle());
+        book.setDescription(bookDto.getDescription());
+        book.setPublicationYear(bookDto.getPublicationYear());
+        book.setAvailableCopies(bookDto.getAvailableCopies());
+
+        List<Author> authors = getAuthorsByIds(bookDto.getAuthors());
+        List<Genre> genres = getGenresByIds(bookDto.getGenres());
+
+        book.setAuthors(authors);
+        book.setGenres(genres);
+
+        Book updatedBook = bookRepository.save(book);
+
+        BookDto updatedBookDto = toDto(updatedBook);
+
+        return updatedBookDto;
+    }
+
+    public void deleteBook(Long id) {
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new BookNotFoundException(
+                        "Book with id " + id + " not found"
+                ));
+
+        bookRepository.delete(book);
     }
 }
