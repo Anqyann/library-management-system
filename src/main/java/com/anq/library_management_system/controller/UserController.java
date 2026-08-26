@@ -1,6 +1,7 @@
 package com.anq.library_management_system.controller;
 
-import com.anq.library_management_system.dto.UserDto;
+import com.anq.library_management_system.dto.CreateUserRequestDto;
+import com.anq.library_management_system.dto.UserResponseDto;
 import com.anq.library_management_system.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +20,20 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getUsers() {
+    public List<UserResponseDto> getUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public UserDto getUserById(@PathVariable Long id) {
+    public UserResponseDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
     @PostMapping
-    public UserDto createUser(@Valid @RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
-    }
+    public UserResponseDto createUser(
+            @Valid @RequestBody CreateUserRequestDto request) {
 
-    @PutMapping("/{id}")
-    public UserDto updateUser(
-            @PathVariable Long id,
-            @Valid @RequestBody UserDto userDto) {
-
-        return userService.updateUser(id, userDto);
+        return userService.createUser(request);
     }
 
     @DeleteMapping("/{id}")

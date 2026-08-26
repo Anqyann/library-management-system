@@ -94,4 +94,52 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(response);
     }
+
+    @ExceptionHandler(BookNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleBookNotAvailable(
+            BookNotAvailableException exception) {
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                409,
+                exception.getMessage(),
+                null
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+    @ExceptionHandler(BorrowRecordNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            BorrowRecordNotFoundException exception) {
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                404,
+                exception.getMessage(),
+                null
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(BookAlreadyReturnedException.class)
+    public ResponseEntity<ErrorResponse> handleBookNotAvailable(
+            BookAlreadyReturnedException exception) {
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                409,
+                exception.getMessage(),
+                null
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
 }
