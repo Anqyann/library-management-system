@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BorrowRecordNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFound(
+    public ResponseEntity<ErrorResponse> handleBorrowRecordNotFound(
             BorrowRecordNotFoundException exception) {
 
         ErrorResponse response = new ErrorResponse(
@@ -128,7 +128,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BookAlreadyReturnedException.class)
-    public ResponseEntity<ErrorResponse> handleBookNotAvailable(
+    public ResponseEntity<ErrorResponse> handleAlreadyReturned(
             BookAlreadyReturnedException exception) {
 
         ErrorResponse response = new ErrorResponse(

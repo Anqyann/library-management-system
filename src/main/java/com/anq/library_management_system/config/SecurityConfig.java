@@ -156,6 +156,12 @@ public class SecurityConfig {
                                 "/api/users/**"
                         ).hasRole("LIBRARIAN")
 
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/borrow-records/me",
+                                "/api/borrow-records/me/active",
+                                "/api/borrow-records/me/overdue"
+                        ).hasAnyRole("USER", "LIBRARIAN")
 
                         // BORROW RECORDS
 

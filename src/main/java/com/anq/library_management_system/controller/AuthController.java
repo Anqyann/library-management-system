@@ -25,7 +25,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public String login(@RequestBody LoginRequestDto loginRequest) {
-        System.out.println("LOGIN CONTROLLER REACHED");
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),

@@ -167,4 +167,67 @@ public class BorrowRecordService {
         return borrowRecordDtos;
     }
 
+    private User getUserByUsername(String username) {
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User with username " + username + " not found"
+                ));
+    }
+
+    public List<BorrowRecordDto> getBorrowRecordsForCurrentUser(
+            String username) {
+
+        User user = getUserByUsername(username);
+
+        List<BorrowRecord> borrowRecords =
+                borrowRecordRepository.findByUserId(user.getId());
+
+        List<BorrowRecordDto> borrowRecordDtos = new ArrayList<>();
+
+        for (BorrowRecord borrowRecord : borrowRecords) {
+            borrowRecordDtos.add(toDto(borrowRecord));
+        }
+
+        return borrowRecordDtos;
+    }
+
+    public List<BorrowRecordDto> getActiveBorrowRecordsForCurrentUser(
+            String username) {
+
+        User user = getUserByUsername(username);
+
+        List<BorrowRecord> borrowRecords =
+                borrowRecordRepository
+                        .findByUserIdAndReturnDateIsNull(user.getId());
+
+        List<BorrowRecordDto> borrowRecordDtos = new ArrayList<>();
+
+        for (BorrowRecord borrowRecord : borrowRecords) {
+            borrowRecordDtos.add(toDto(borrowRecord));
+        }
+
+        return borrowRecordDtos;
+    }
+    public List<BorrowRecordDto> getOverdueBorrowRecordsForCurrentUser(
+            String username) {
+
+        User user = getUserByUsername(username);
+
+        List<BorrowRecord> borrowRecords =
+                borrowRecordRepository
+                        .findByUserIdAndReturnDateIsNullAndDueDateBefore(
+                                user.getId(),
+                                LocalDate.now()
+                        );
+
+        List<BorrowRecordDto> borrowRecordDtos = new ArrayList<>();
+
+        for (BorrowRecord borrowRecord : borrowRecords) {
+            borrowRecordDtos.add(toDto(borrowRecord));
+        }
+
+        return borrowRecordDtos;
+    }
+
 }

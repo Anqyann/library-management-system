@@ -3,6 +3,7 @@ package com.anq.library_management_system.controller;
 import com.anq.library_management_system.dto.BorrowRecordDto;
 import com.anq.library_management_system.service.BorrowRecordService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,5 +54,35 @@ public class BorrowRecordController {
             @PathVariable Long userId) {
 
         return borrowRecordService.getOverdueBorrowRecordsByUserId(userId);
+    }
+
+    @GetMapping("/me")
+    public List<BorrowRecordDto> getMyBorrowRecords(
+            Authentication authentication) {
+
+        return borrowRecordService
+                .getBorrowRecordsForCurrentUser(
+                        authentication.getName()
+                );
+    }
+
+    @GetMapping("/me/active")
+    public List<BorrowRecordDto> getMyActiveBorrowRecords(
+            Authentication authentication) {
+
+        return borrowRecordService
+                .getActiveBorrowRecordsForCurrentUser(
+                        authentication.getName()
+                );
+    }
+
+    @GetMapping("/me/overdue")
+    public List<BorrowRecordDto> getMyOverdueBorrowRecords(
+            Authentication authentication) {
+
+        return borrowRecordService
+                .getOverdueBorrowRecordsForCurrentUser(
+                        authentication.getName()
+                );
     }
 }
