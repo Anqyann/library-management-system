@@ -143,6 +143,7 @@ DB_URL=jdbc:postgresql://localhost:5432/library_management
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 JWT_SECRET=your_jwt_secret
+```
 
 Run:
 
